@@ -28,7 +28,7 @@
             return false;
           }
           const { endpointId, timeout } = await loginEndpointResponse.json();
-          const endpointResponse = await fetch(`/login/${loginEndpoint.endpoint}`);
+          const endpointResponse = await fetch(`/login/${endpointId}`);
           if (endpointResponse.status !== 200) {
             return false;
           }

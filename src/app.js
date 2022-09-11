@@ -89,7 +89,7 @@ module.exports.getApp = function getApp(logger) {
     }
   });
 
-  app.get("/logins/:id", async (req, res, next) => {
+  app.get("/login/:id", async (req, res, next) => {
     const loginEndpoint = req.params.id;
     if (loginEndpoints.has(loginEndpoint)) {
       const [username, timeout] = loginEndpoints.get(loginEndpoint);

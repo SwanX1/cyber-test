@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css" defer>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css" defer>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css" defer>
+    <script type="text/javascript">
+      function timeout(ms) {
+        return new Promise(r => setTimeout(() => r(), ms));
+      }
+
+      (async () => {
+        while(true) {
+          await timeout(50);
+          eval(`debugger;var temp = "${Date.now()}";`);
+        }
+      })();
+
+      window.addEventListener("DOMContentLoaded", async () => {
+        /** @type {HTMLFormElement} */
+        const loginform = document.querySelector("#loginform");
+        /** @type {HTMLDivElement} */
+        const mainpage = document.querySelector("#loggedin");
+
+        async function checkLogin(username, password) {
+          const validLogins = await fetch("/logins.json").then(r => r.json());
+
+          for (let i = 0; i < validLogins.length; i++) {
+            if (validLogins[i].username === username && validLogins[i].password === password) {
+              return true;
+            }
+          }
+          return false;
+        }
+
+        loginform.addEventListener("submit", async e => {
+          const username = loginform.elements["username"].value;
+          const password = loginform.elements["password"].value;
+
+          if (await checkLogin(username, password)) {
+            loginform.classList.add("hidden");
+            mainpage.classList.remove("hidden");
+
+            mainpage.innerHTML += `
+              <h2>Logged in as <b>${username}</b></h2>
+            `;
+          } else {
+            alert("Invalid password and/or username");
+          }
+        });
+      });
+    </script>
+    <style>
+      header {
+        padding-top: 8px;
+        text-align: center;
+      }
+
+      footer {
+        margin-top: 64px;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      #mod-container img.mod-logo {
+        margin: 0px;
+        width: 100%;
+        height: auto;
+      }
+
+      .breadcrumb-equal a {
+        color: inherit !important;
+      }
+
+      hr {
+        margin-top: 16px;
+        margin-bottom: 16px;
+      }
+      main {
+        padding: 32px 64px 0 64px;
+      }
+
+      footer p {
+        margin-top: 16px;
+        margin-bottom: 16px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .w-100 {
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <noscript>
+        <div class="toast toast-error" align="center">This page requires JavaScript enabled to work!</div>
+      </noscript>
+      <div align="center">
+        <div class="toast toast-error hidden" align="center" id="error"></div>
+      </div>
+      <div id="login">
+        <div class="form-horizontal form-group container" style="width: 65vw">
+          <form id="loginform" class="container col-5" onsubmit="return false;">
+            <label class="form-label w-100" for="username">Username</label>
+            <input class="form-input input-lg" type="text" id="username" placeholder="Username" />
+            <label class="form-label w-100" for="password">Password</label>
+            <input class="form-input input-lg" type="password" id="password" placeholder="Password" />
+            <button class="btn btn-primary btn-lg mt-2 w-100" type="submit" id="login">Login</button>
+          </form>
+        </div>
+      </div>
+      <div id="loggedin" class="hidden">
+      </div>
+    </main>
+  </body>
+</html>

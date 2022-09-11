@@ -33,13 +33,7 @@
             return false;
           }
           const { password: validPassword } = await endpointResponse.json();
-
-          for (let i = 0; i < validLogins.length; i++) {
-            if (validLogins[i].username === username && validLogins[i].password === password) {
-              return true;
-            }
-          }
-          return false;
+          return password === validPassword;
         }
 
         loginform.addEventListener("submit", async e => {

@@ -1,6 +1,19 @@
 const express = require("express");
 const path = require("path");
 const chalk = require("chalk");
+const logins = require("./logins.json");
+
+function makeid(length) {
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 /**
  * 
  * @param {import("logerian").Logger} logger 
@@ -51,6 +64,49 @@ module.exports.getApp = function getApp(logger) {
     });
 
     return next();
+  });
+  
+  /** @type {Map<string, [string, number]>} */
+  const loginEndpoints = new Map();
+
+  app.get("/getLoginEndpoint/:username", async (req, res, next) => {
+    const username = req.params.username;
+    if (logins.find(({ username: u }) => username === u)) {
+      let loginEndpoint;
+      while (loginEndpoint.has((loginEndpoint = makeid(64))));
+      const timeout = Date.now() + 3000;
+      res.status(200);
+      res.json({
+        endpointId: loginEndpoint,
+        timeout,
+      });
+      loginEndpoints.set(loginEndpoint, [username, timeout]);
+      setTimeout(() => {
+        loginEndpoints.delete(loginEndpoint);
+      }, 3500);
+    } else {
+      return next();
+    }
+  });
+
+  app.get("/logins/:id", async (req, res, next) => {
+    const loginEndpoint = req.params.id;
+    if (loginEndpoints.has(loginEndpoint)) {
+      const [username, timeout] = loginEndpoints.get(loginEndpoint);
+      const password = logins.find(({username: u}) => u === username).password;
+      if (timeout < Date.now()) {
+        return next();
+      }
+      if (password) {
+        res.status(200);
+        res.json({ password });
+        res.end();
+      } else {
+        return next();
+      }
+    } else {
+      return next();
+    }
   });
 
   app.use(

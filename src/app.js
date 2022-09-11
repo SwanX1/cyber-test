@@ -73,7 +73,7 @@ module.exports.getApp = function getApp(logger) {
     const username = req.params.username;
     if (logins.find(({ username: u }) => username === u)) {
       let loginEndpoint;
-      while (loginEndpoint.has((loginEndpoint = makeid(64))));
+      while (loginEndpoints.has((loginEndpoint = makeid(64))));
       const timeout = Date.now() + 3000;
       res.status(200);
       res.json({
